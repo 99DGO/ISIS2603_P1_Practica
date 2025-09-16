@@ -33,12 +33,12 @@ public class ConciertoService {
         }
 
 		// La capacidad del concierto debe ser un número superior a 10 personas
-        if(concierto.getAforo() >10) {
+        if(concierto.getAforo() <10) {
             throw new IllegalOperationException("El número máximo de personas debe ser superior a 10");
         }
 
 		//El presupuesto del concierto debe ser un número superior a 1000 dólares
-        if(concierto.getPresupuesto() >1000) {
+        if(concierto.getPresupuesto() <1000) {
             throw new IllegalOperationException("El presupuesto debe ser mayor a 1000");
         }
 
