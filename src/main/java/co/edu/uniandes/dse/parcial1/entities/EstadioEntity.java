@@ -3,6 +3,7 @@ package co.edu.uniandes.dse.parcial1.entities;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToMany;
@@ -19,7 +20,7 @@ public class EstadioEntity extends BaseEntity {
     private int aforo;
 
     @PodamExclude
-    @OneToMany(mappedBy = "estadio", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "estadio", fetch = FetchType.LAZY) //, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ConciertoEntity> conciertos = new ArrayList<>();;
     
 }

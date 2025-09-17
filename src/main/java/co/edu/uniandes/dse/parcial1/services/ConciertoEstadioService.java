@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import co.edu.uniandes.dse.parcial1.entities.ConciertoEntity;
 import co.edu.uniandes.dse.parcial1.entities.EstadioEntity;
 import co.edu.uniandes.dse.parcial1.exceptions.EntityNotFoundException;
+import co.edu.uniandes.dse.parcial1.exceptions.IllegalOperationException;
 import co.edu.uniandes.dse.parcial1.repositories.ConciertoRepository;
 import co.edu.uniandes.dse.parcial1.repositories.EstadioRepository;
 import jakarta.transaction.Transactional;
@@ -27,30 +28,37 @@ public class ConciertoEstadioService {
     private ConciertoRepository conciertoRepository;
 
     @Transactional
-    public ConciertoEntity addEstadio(Long conciertoId, Long estadioId) throws EntityNotFoundException {
-        Optional<EstadioEntity> estadioEntity = estadioRepository.findById(estadioId);
-        if (estadioEntity.isEmpty())
+    public EstadioEntity addEstadio(Long conciertoId, Long estadioId) throws EntityNotFoundException, IllegalOperationException {
+        Optional<EstadioEntity> estadioEntity1 = estadioRepository.findById(estadioId);
+        if (estadioEntity1.isEmpty())
             throw new EntityNotFoundException("Estadio no encontrado");
 
-        Optional<ConciertoEntity> conciertoEntity = conciertoRepository.findById(conciertoId);
-        if (conciertoEntity.isEmpty())
+        Optional<ConciertoEntity> conciertoEntity1 = conciertoRepository.findById(conciertoId);
+        if (conciertoEntity1.isEmpty())
             throw new EntityNotFoundException("Concierto no encontrada");
 
+        ConciertoEntity conciertoEntity= conciertoEntity1.get();
+        EstadioEntity estadioEntity= estadioEntity1.get();
+
         if (conciertoEntity.getPresupuesto() < estadioEntity.getPrecioAlquiler())
-            throw new EntityNotFoundException("Supera presupuesto");
+            throw new IllegalOperationException("Supera presupuesto");
         
         if (conciertoEntity.getAforo() > estadioEntity.getAforo())
-            throw new EntityNotFoundException("Supera aforo");
+            throw new IllegalOperationException("Supera aforo");
         
 
         for (int i =0; i< estadioEntity.getConciertos().size(); i++) {
-            ConciertoEntity conciertoEntity2;
-            if (Duration.between(conciertoEntity2.getFecha(), conciertoEntity.getFecha())< Duration.ofDays(2))
-                throw new EntityNotFoundException("Fecha invalida");
+            ConciertoEntity conciertoEntity2 = estadioEntity.getConciertos().get(i);
+
+            Duration duration= Duration.between(conciertoEntity2.getFecha(), conciertoEntity.getFecha());
+            long diffInDays = duration.toDays();
+
+            if (diffInDays<2)
+                throw new IllegalOperationException("Fecha invalida");
         }
 
-        conciertoEntity.get().setEstadio(estadioEntity.get());
-        return conciertoEntity.get();
+        conciertoEntity.setEstadio(estadioEntity);
+        return estadioEntity;
     }
 
 }
